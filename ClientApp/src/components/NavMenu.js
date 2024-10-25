@@ -41,6 +41,12 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className='text-dark' to='/fisca'>Fisca</NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className='text-dark' to='/fiscaocr'>FiscaOcr</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className='text-dark' to='/pruebadash'>PruebaDash</NavLink>
+              </NavItem>
             </ul>
           </Collapse>
         </Navbar>

@@ -1,7 +1,9 @@
 import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Fisca } from "./components/Fisca";
+import { FiscaOcr } from "./components/FiscaOcr";
 import { Home } from "./components/Home";
+import { PruebaDash } from "./components/PruebaDash";
 
 const AppRoutes = [
   {
@@ -19,6 +21,14 @@ const AppRoutes = [
   {
     path: '/fisca',
     element: <Fisca />
+  },
+  {
+    path: '/fiscaocr',
+    element: <FiscaOcr />
+  },
+  {
+    path: '/pruebadash',
+    element: <PruebaDash />
   }
 ];
 

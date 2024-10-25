@@ -15,7 +15,7 @@ namespace ProyectoFisca.Controllers
         {
             string pdfPath = "homicidios.pdf";
             string text = ExtractTextFromPdf(pdfPath);
-            Console.WriteLine(text);
+            //Console.WriteLine(text);
             return Ok(text);
         }
 
@@ -25,7 +25,7 @@ namespace ProyectoFisca.Controllers
             using (PdfDocument pdfDoc = new PdfDocument(reader))
             {
                 StringWriter text = new StringWriter();
-                for (int page = 1; page <= pdfDoc.GetNumberOfPages(); page++)
+                for (int page = 1; page <= 1; page++)
                 {
                     text.WriteLine(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page)));
                 }

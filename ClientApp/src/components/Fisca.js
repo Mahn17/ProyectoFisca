@@ -19,7 +19,7 @@ export class Fisca extends Component {
         throw new Error('Network response was not ok');
       }
       const text = await response.text();
-      console.log(text);
+      //console.log(text);
       this.setState({ pdfContent: text, loading: false });
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
@@ -35,7 +35,6 @@ export class Fisca extends Component {
     return (
       <div>
         <h1 id="tableLabel">Contenido del PDF</h1>
-        <p>Para ver a los muertos</p>
         {contents}
       </div>
     );
