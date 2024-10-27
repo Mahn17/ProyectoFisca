@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './Fisca.css';
 
 export class Fisca extends Component {
   static displayName = Fisca.name;
@@ -28,15 +29,16 @@ export class Fisca extends Component {
   }
 
   render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : <pre>{this.state.pdfContent}</pre>;
+	  let contents = this.state.loading
+		? <p className="loading-text"><em>Loading...</em></p>
+		: <pre className="pdf-content">{this.state.pdfContent}</pre>;
 
-    return (
-      <div>
-        <h1 id="tableLabel">Contenido del PDF</h1>
-        {contents}
-      </div>
-    );
+	  return (
+		<div className="fisca-container">
+		  <h1 id="tableLabel" className="pdf-title">Contenido del PDF</h1>
+		  <p className="pdf-description">Indice de homicidios por estado.</p>
+		  {contents}
+		</div>
+	  );
   }
 }
