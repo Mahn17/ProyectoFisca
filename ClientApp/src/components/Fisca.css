@@ -1,35 +1,44 @@
 .fisca-container {
   padding: 20px;
-  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
 }
 
 .pdf-title {
   font-size: 24px;
-  color: #333;
-  text-align: center;
-  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .pdf-description {
-  font-size: 16px;
-  color: #292929;
   margin-bottom: 20px;
-  text-decoration-line: underline;
-}
-
-.pdf-content {
-  table-layout: auto;
-  
-
-  /*font-family: Verdana;*/
-  background-color: #bdbdbd;
-  padding: 10px;
-  border-style: inset;
-  border-radius: 5px;
-  overflow-x: auto;
+  font-style: italic;
 }
 
 .loading-text {
-  color: #999;
-  font-style: italic;
+  font-size: 18px;
+  color: #555;
+}
+
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.pdf-table th, .pdf-table td {
+  padding: 12px; /* Espacio alrededor del texto */
+  text-align: left;
+  border: 1px solid #ddd; /* Línea de separación */
+}
+
+.pdf-table th {
+  background-color: #4CAF50; /* Color de fondo del encabezado */
+  color: white; /* Color del texto del encabezado */
+}
+
+.pdf-table tr:nth-child(even) {
+  background-color: #f2f2f2; /* Color de fondo para filas pares */
+}
+
+.pdf-table tr:hover {
+  background-color: #ddd; /* Color de fondo al pasar el ratón sobre la fila */
 }

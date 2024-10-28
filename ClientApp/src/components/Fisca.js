@@ -6,7 +6,7 @@ export class Fisca extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { pdfContent: '', loading: true };
+    this.state = { pdfData: [], loading: true };
   }
 
   componentDidMount() {
@@ -19,26 +19,51 @@ export class Fisca extends Component {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      const text = await response.text();
-      //console.log(text);
-      this.setState({ pdfContent: text, loading: false });
+      const data = await response.json();
+      this.setState({ pdfData: data, loading: false });
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
-      this.setState({ pdfContent: 'Error loading PDF content', loading: false });
+      this.setState({ pdfData: [], loading: false });
     }
   }
 
   render() {
-	  let contents = this.state.loading
-		? <p className="loading-text"><em>Loading...</em></p>
-		: <pre className="pdf-content">{this.state.pdfContent}</pre>;
+    const { loading, pdfData } = this.state;
 
-	  return (
-		<div className="fisca-container">
-		  <h1 id="tableLabel" className="pdf-title">Contenido del PDF</h1>
-		  <p className="pdf-description">Indice de homicidios por estado.</p>
-		  {contents}
-		</div>
-	  );
+    let contents = loading ? (
+      <p className="loading-text"><em>Loading...</em></p>
+    ) : (
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            <th>Entidad</th>
+            <th>Municipio</th>
+            <th>Número de Muertos</th>
+            <th>Hombre</th>
+            <th>Mujer</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pdfData.map((row, index) => (
+            <tr key={index}>
+              <td>{row.entidad}</td>
+              <td>{row.municipio}</td>
+              <td>{row.noMuertos}</td>
+              <td>{row.hombre}</td>
+              <td>{row.mujer}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+
+    return (
+      <div className="fisca-container">
+        <h1 id="tableLabel" className="pdf-title">Contenido del PDF</h1>
+        <p className="pdf-description">Índice de homicidios por estado.</p>
+        {contents}
+      </div>
+    );
   }
 }
+
