@@ -4,6 +4,7 @@ import { Fisca } from "./components/Fisca";
 import { FiscaOcr } from "./components/FiscaOcr";
 import { Home } from "./components/Home";
 import { PruebaDash } from "./components/PruebaDash";
+import { Graphs } from "./components/Graphs";
 
 const AppRoutes = [
   {
@@ -29,6 +30,10 @@ const AppRoutes = [
   {
     path: '/pruebadash',
     element: <PruebaDash />
+  },
+  {
+    path: '/graphs',
+    element: <Graphs />
   }
 ];
 
