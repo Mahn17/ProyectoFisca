@@ -5,9 +5,17 @@ export class Graphs extends Component {
   static displayName = Graphs.name;
 
   componentDidMount() {
-    const ctx = this.chartRef.getContext('2d');
+    // Crear gráficos con los mismos datos pero distintos tipos
+    this.createChart(this.barChartRef, 'bar');
+    this.createChart(this.lineChartRef, 'line');
+    this.createChart(this.pieChartRef, 'pie');
+    this.createChart(this.radarChartRef, 'radar');
+  }
+
+  createChart(ref, type) {
+    const ctx = ref.getContext('2d');
     new Chart(ctx, {
-      type: 'bar',
+      type: type,
       data: {
         labels: [
           'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
@@ -19,26 +27,14 @@ export class Graphs extends Component {
         datasets: [{
           label: '# de muertes',
           data: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)',
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-          ],
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
         }],
       },
       options: {
+        maintainAspectRatio: false, // Permite que los gráficos se ajusten a su contenedor
+        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
@@ -50,8 +46,25 @@ export class Graphs extends Component {
 
   render() {
     return (
-      <div>
-        <canvas ref={(ref) => this.chartRef = ref} id="myChart" width="400" height="190"></canvas>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+        gap: '10px' 
+      }}>
+        <div style={{ width: '100%', height: '300px' }}>
+          <canvas ref={(ref) => this.barChartRef = ref} />
+        </div>
+        <div style={{ width: '100%', height: '300px' }}>
+          <canvas ref={(ref) => this.lineChartRef = ref} />
+        </div>
+        <div style={{ width: '100%', height: '300px' }}>
+          <canvas ref={(ref) => this.radarChartRef = ref} />
+        </div>
+        
+
+        <div style={{ width: '100%', height: '600px' }}>
+          <canvas ref={(ref) => this.pieChartRef = ref} />
+        </div>
       </div>
     );
   }
