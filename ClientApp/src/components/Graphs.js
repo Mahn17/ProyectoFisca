@@ -4,35 +4,58 @@ import { Chart } from 'chart.js/auto';
 export class Graphs extends Component {
   static displayName = Graphs.name;
 
-  data = {
-    labels: [
-      'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
-      'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
-      'Jalisco', 'Estado de México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
-      'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
-      'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
-    ],
-    datasets: [{
-      label: '# de muertes',
-      data: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1,
-    }],
-  };
+  //Constructor de la tabla de datos(cambiar por lectura de base de datos)
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: {
+        labels: [
+          'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
+          'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
+          'Jalisco', 'Estado de México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
+          'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
+          'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
+        ],
+        datasets: [{
+          label: '# de muertes',
+          data: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+        }],
+      },
+    };
 
-  componentDidMount() {
-    this.createChart(this.barChartRef, 'bar');
-    this.createChart(this.lineChartRef, 'line');
-    this.createChart(this.pieChartRef, 'pie');
-    this.createChart(this.radarChartRef, 'radar');
+    // Guardar cada instancia de gráfico
+    this.charts = {};
   }
 
-  createChart(ref, type) {
+  //Creacion inicial de todos graficos
+  componentDidMount() {
+    this.createChart(this.barChartRef, 'bar', 'barChart');
+    this.createChart(this.lineChartRef, 'line', 'lineChart');
+    this.createChart(this.pieChartRef, 'pie', 'pieChart');
+    this.createChart(this.radarChartRef, 'radar', 'radarChart');
+  }
+
+  //Destruccion de graficos
+  componentWillUnmount() {
+    Object.values(this.charts).forEach(chart => {
+      if (chart) chart.destroy();
+    });
+  }
+
+  //Creacion individual de graficos
+  createChart(ref, type, chartName) {
+    // Destruye el gráfico si ya existe
+    if (this.charts[chartName]) {
+      this.charts[chartName].destroy();
+    }
+
     const ctx = ref.getContext('2d');
-    new Chart(ctx, {
+    this.charts[chartName] = new Chart(ctx, {
       type: type,
-      data: this.data,
+      data: this.state.data,
       options: {
         maintainAspectRatio: false,
         responsive: true,
@@ -45,8 +68,9 @@ export class Graphs extends Component {
     });
   }
 
+  //Exportacion de datos a un archivo txt
   exportData = () => {
-    const { labels, datasets } = this.data;
+    const { labels, datasets } = this.state.data;
     const rows = labels.map((label, index) => `${label}: ${datasets[0].data[index]}`);
     const fileContent = rows.join('\n');
 
@@ -59,10 +83,55 @@ export class Graphs extends Component {
     URL.revokeObjectURL(url);
   };
 
+  //Importacion de datos de un archivo txt
+  importData = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        const lines = content.split('\n');
+
+        const labels = [];
+        const data = [];
+
+        lines.forEach(line => {
+          const [label, value] = line.split(':').map(item => item.trim());
+          if (label && !isNaN(value)) {
+            labels.push(label);
+            data.push(parseFloat(value));
+          }
+        });
+
+        this.setState({
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '# de muertes',
+              data: data,
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+            }],
+          }
+        }, () => {
+          // Volver a crear los gráficos para que tomen los nuevos datos
+          this.createChart(this.barChartRef, 'bar', 'barChart');
+          this.createChart(this.lineChartRef, 'line', 'lineChart');
+          this.createChart(this.pieChartRef, 'pie', 'pieChart');
+          this.createChart(this.radarChartRef, 'radar', 'radarChart');
+        });
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  //Renderizacion de Graficos
   render() {
     return (
       <div>
         <button onClick={this.exportData}>Exportar datos</button>
+        <input type="file" accept=".txt" onChange={this.importData} />
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
