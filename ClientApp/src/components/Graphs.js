@@ -132,21 +132,34 @@ export class Graphs extends Component {
       <div>
         <button onClick={this.exportData}>Exportar datos</button>
         <input type="file" accept=".txt" onChange={this.importData} />
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '10px' 
+        
+        {/*Primeras dos Graficas */}
+        <div style={{
+          display: 'flex', 
+          flexDirection: 'row', 
+          justifyContent: 'space-around', 
+          width: '100%',
+          gap: '10px',
         }}>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '45%', height: '300px' }}>
             <canvas ref={(ref) => this.barChartRef = ref} />
           </div>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '45%', height: '300px' }}>
             <canvas ref={(ref) => this.lineChartRef = ref} />
           </div>
+        </div>
+        
+        {/* Resto de las Graficas.*/}
+        <div style={{
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          gap: '10px'
+        }}>
           <div style={{ width: '100%', height: '300px' }}>
             <canvas ref={(ref) => this.radarChartRef = ref} />
           </div>
-          <div style={{ width: '100%', height: '600px' }}>
+          <div style={{ width: '100%', height: '300px' }}>
             <canvas ref={(ref) => this.pieChartRef = ref} />
           </div>
         </div>
