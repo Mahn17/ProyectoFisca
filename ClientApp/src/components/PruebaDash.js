@@ -4,21 +4,38 @@ import { Chart } from 'chart.js/auto';
 export class PruebaDash extends Component {
   static displayName = PruebaDash.name;
 
+  state = {
+    data: []
+  };
+
   componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData = async () => {
+    const response = await fetch('/LectorPdfOcr');
+    const data = await response.json();
+    this.setState({ data }, this.createChart);
+  };
+
+  
+  createChart() {
     const ctx = this.chartRef.getContext('2d');
     new Chart(ctx, {
       type: 'bar',
       data: {
         labels: [
-          'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
-          'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
-          'Jalisco', 'Estado de México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
-          'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
-          'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
+          'Morelos', 'Aguascalientes', 'Baja California', 'Nayarit', 'Baja California Sur', 'Nuevo León', 
+          'Campeche', 'Oaxaca', 'Chiapas', 'Puebla', 'Chihuahua', 'Querétaro', 
+          'Ciudad de México', 'Quintana Roo', 'Coahuila', 'San Luis Potosí', 'Colima', 'Sinaloa', 'Durango', 
+          'Sonora', 'Estado de México', 'Tabasco', 
+          'Guanajuato', 'Tamaulipas', 'Guerrero', 
+          'Tlaxcala', 'Hidalgo', 'Veracruz', 'Jalisco', 'Yucatán', 'Michoacán', 
+           'Zacatecas'
         ],
         datasets: [{
           label: '# de muertes',
-          data: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
+          data:  this.state.data,
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
             'rgba(54, 162, 235, 0.2)',

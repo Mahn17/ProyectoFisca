@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using Microsoft.AspNetCore.Mvc;
-using Tesseract;
+using System.Text;
 
 namespace ProyectoFisca.Controllers
 {
@@ -14,57 +16,80 @@ namespace ProyectoFisca.Controllers
         [HttpGet]
         public IActionResult ReadPdf()
         {
-            string pdfPath = "homicidiosfotos.pdf";
-            string text = ExtractTextFromPdf(pdfPath);
-            return Ok(text);
+            string pdfPath = "homicidios.pdf";
+            List<int> numbers = ExtractNumbersFromPdf(pdfPath);
+            return Ok(numbers); // Devuelve la lista de números como JSON
         }
 
-        static string ExtractTextFromPdf(string pdfPath)
+        static List<int> ExtractNumbersFromPdf(string pdfPath)
         {
+            List<int> result = new List<int>();
+            int maxCharsPerLine = 2; // Máximo de caracteres por línea
+
             using (PdfReader reader = new PdfReader(pdfPath))
             using (PdfDocument pdfDoc = new PdfDocument(reader))
             {
-                StringWriter textWriter = new StringWriter();
-
-                for (int page = 1; page <= pdfDoc.GetNumberOfPages(); page++)
+                for (int page = 1; page <= 1; page++)
                 {
-                    string extractedText = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page));
+                    string textFromPage = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page));
+                    string[] lines = textFromPage.Split('\n');
 
-                    // Si no hay texto digital, aplica OCR
-                    if (string.IsNullOrWhiteSpace(extractedText))
+                    for (int i = 4; i < lines.Length - 3; i++)  // Empieza desde la cuarta línea
                     {
-                        // Extrae la imagen de la página y aplica OCR
-                        string ocrText = ExtractTextFromImage(pdfPath, page);
-                        textWriter.WriteLine(ocrText);
-                    }
-                    else
-                    {
-                        textWriter.WriteLine(extractedText);
+                        string numbers = ExtractNumbers(lines[i]);
+                        string processedLine = ProcessLine(numbers, maxCharsPerLine);
+                        result.AddRange(ProcessNumbers(processedLine));
                     }
                 }
-
-                return textWriter.ToString();
             }
+
+            return result;
         }
 
-        static string ExtractTextFromImage(string pdfPath, int pageNumber)
+        static string ProcessLine(string line, int maxChars)
         {
-            // Aquí puedes utilizar una biblioteca adicional para extraer la página como una imagen
-            // y luego aplicar OCR. Por simplicidad, asumimos que la imagen ya está extraída.
-
-            string imagePath = $"page_{pageNumber}.png"; // Guarda la página como una imagen
-
-            // Usa Tesseract para aplicar OCR sobre la imagen
-            using (var engine = new TesseractEngine(@"./tessdata", "eng", EngineMode.Default))
+            if (line.Length <= maxChars)
             {
-                using (var img = Pix.LoadFromFile(imagePath))
+                return line + Environment.NewLine;
+            }
+
+            StringBuilder result = new StringBuilder();
+            int start = 0;
+
+            while (start < line.Length)
+            {
+                int length = Math.Min(maxChars, line.Length - start);
+                result.AppendLine(line.Substring(start, length));
+                start += length;
+            }
+
+            return result.ToString(); // No se elimina la nueva línea final
+        }
+
+        static List<int> ProcessNumbers(string processedLine)
+        {
+            List<int> numbers = new List<int>();
+            var lines = processedLine.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                var matches = Regex.Matches(line, @"\d+");
+                foreach (Match match in matches)
                 {
-                    using (var page = engine.Process(img))
+                    if (int.TryParse(match.Value, out int number))
                     {
-                        return page.GetText();
+                        numbers.Add(number);
                     }
                 }
             }
+
+            return numbers;
+        }
+
+        static string ExtractNumbers(string line)
+        {
+            // Usa una expresión regular para extraer todos los números de la línea
+            var matches = Regex.Matches(line, @"\d+");
+            return string.Join(" ", matches);
         }
     }
 }

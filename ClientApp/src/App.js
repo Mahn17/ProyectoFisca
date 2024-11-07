@@ -40,8 +40,8 @@ function getItem(label, key, icon, children, path) {
 
 const items = [
   getItem('Home', '1', <PieChartOutlined />, null, '/'),
-  getItem('Counter', '2', <DesktopOutlined />, null, '/counter'),
-  getItem('Fetch Data', '3', <FileOutlined />, null, '/fetch-data'),
+  // getItem('Counter', '2', <DesktopOutlined />, null, '/counter'),
+  // getItem('Fetch Data', '3', <FileOutlined />, null, '/fetch-data'),
   getItem('Fisca', '4', <FileOutlined />, null, '/fisca'),  
   getItem('FiscaOcr', '5', <FileOutlined />, null, '/fiscaocr' ),
   getItem('PruebaDash', '6', <PieChartOutlined />, null, '/pruebadash' )

@@ -34,7 +34,7 @@ export class FiscaOcr extends Component {
 
     return (
       <div>
-        <h1 id="tableLabel">Contenido del PDF</h1>
+        <h1 id="tableLabel">Contenido del PDF de estados del pais</h1>
         {contents}
       </div>
     );
