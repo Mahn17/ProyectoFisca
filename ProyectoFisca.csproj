@@ -18,9 +18,11 @@
     <PackageReference Include="itext.pdfocr.tesseract4" Version="3.0.2" />
     <PackageReference Include="itext7" Version="8.0.5" />
     <PackageReference Include="itext7.pdfocr.tesseract4" Version="3.0.2" />
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.16" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="pdfpig" Version="0.1.9" />
-    <PackageReference Include="Tesseract" Version="4.1.1" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
   </ItemGroup>
 
   <ItemGroup>
