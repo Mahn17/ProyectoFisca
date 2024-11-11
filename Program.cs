@@ -1,22 +1,32 @@
+using Microsoft.EntityFrameworkCore;
+using ProyectoFisca.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configurar la conexión a la base de datos
+var connectionString = builder.Configuration.GetConnectionString("FiscaliaDatabase");
+if (connectionString == null)
+{
+    throw new InvalidOperationException("Connection string 'FiscaliaDatabase' not found.");
+}
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySQL(connectionString));
+
+// Agregar servicios al contenedor
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configuración del pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 
 app.MapControllerRoute(
     name: "default",
@@ -25,3 +35,5 @@ app.MapControllerRoute(
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+

@@ -2,6 +2,7 @@ import pandas as pd
 import mysql.connector
 import os
 from datetime import datetime
+import re
 
 # Conecta a la base de datos MySQL
 connection = mysql.connector.connect(
@@ -32,7 +33,10 @@ for csv_file in os.listdir(csv_folder):
         # Leer el archivo CSV actual
         df = pd.read_csv(file_path)
 
-              # Verificar y crear las columnas faltantes
+        df['Entidad'] = df['Entidad'].str.replace(r'\s\(\d+\)', '', regex=True)
+        #df = df.dropna(subset=['Entidad', 'Municipio'])
+
+        # Verificar y crear las columnas faltantes
         expected_columns = ['Entidad', 'Municipio', 'Fecha', 'No de Muertos', 'Hombre', 'Mujer', 'No Identificado', 'Fuente']
         for col in expected_columns:
             if col not in df.columns:
@@ -47,7 +51,8 @@ for csv_file in os.listdir(csv_folder):
         df['Entidad'] = df['Entidad'].astype(str).fillna('')  # Convertir 'Entidad' a texto y reemplazar NaN con cadena vacía
         df['Municipio'] = df['Municipio'].astype(str).fillna('')  # Convertir 'Municipio' a texto y reemplazar NaN
         
-         # Convertir 'Fecha' a datetime y reemplazar NaT con None
+        df = df.dropna(subset=['Entidad', 'Municipio'])
+        # Convertir 'Fecha' a datetime y reemplazar NaT con None
         df['Fecha'] = df['Fecha'].apply(lambda x: x if pd.notnull(x) else None)
 
         
