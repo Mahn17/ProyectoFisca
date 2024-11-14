@@ -23,7 +23,7 @@
 import React, { useState } from 'react';
 import { Route, Routes, Link } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
-import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined, DotChartOutlined } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme, ConfigProvider } from 'antd';
 import './custom.css';
 
@@ -44,7 +44,9 @@ const items = [
   // getItem('Fetch Data', '3', <FileOutlined />, null, '/fetch-data'),
   getItem('Fisca', '4', <FileOutlined />, null, '/fisca'),  
   getItem('FiscaOcr', '5', <FileOutlined />, null, '/fiscaocr' ),
-  getItem('PruebaDash', '6', <PieChartOutlined />, null, '/pruebadash' )
+  getItem('PruebaDash', '6', <PieChartOutlined />, null, '/pruebadash' ),
+  getItem('Graphs', '7', <PieChartOutlined/>, null, '/graphs'),
+  getItem('Mapa', '8', <DotChartOutlined />, null, '/map'),
 ];
 
 const App = () => {
