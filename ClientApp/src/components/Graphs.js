@@ -6,7 +6,7 @@ export class Graphs extends Component {
 
   async fetchPdfContent() {
     try {
-      const response = await fetch('/LectorPdf');
+      const response = await fetch('/LectorPdfOcr');
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
