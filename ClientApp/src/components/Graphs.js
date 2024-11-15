@@ -58,7 +58,6 @@ export class Graphs extends Component {
   createCharts() {
     this.createChart(this.barChartRef, 'bar', 'barChart');
     this.createChart(this.lineChartRef, 'line', 'lineChart');
-    this.createChart(this.pieChartRef, 'pie', 'pieChart');
     this.createChart(this.radarChartRef, 'radar', 'radarChart');
     this.createChart(this.sideBarChartRef, 'bar', 'sideBarChart');
   }
@@ -134,13 +133,10 @@ export class Graphs extends Component {
           alignItems: 'center',
           gap: '10px'
         }}>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '75%', height: '500px' }}>
             <canvas ref={(ref) => this.radarChartRef = ref} />
           </div>
-          <div style={{ width: '100%', height: '300px' }}>
-            <canvas ref={(ref) => this.pieChartRef = ref} />
-          </div>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '50%', height: '300px' }}>
             <canvas ref={(ref) => this.sideBarChartRef = ref} />
           </div>
         </div>
