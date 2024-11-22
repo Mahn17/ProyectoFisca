@@ -79,6 +79,7 @@ export class PruebaMapa extends Component {
   render() {
     return (
       <div>
+        <h1 style={{textAlign: 'center'}}>Homicidios dolosos en Mexico</h1>
         <canvas ref={(ref) => this.chartRef = ref} id="canvas" width="800" height="400"></canvas>
       </div>
     );
