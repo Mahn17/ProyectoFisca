@@ -1,22 +1,33 @@
 import React, { Component } from 'react';
 import { Chart } from 'chart.js/auto';
-
+  
 export class Graphs extends Component {
   static displayName = Graphs.name;
 
   async fetchPdfContent() {
     try {
-      const response = await fetch('/LectorPdf');
+      const response = await fetch('http://localhost:5000/api/data'); // URL del backend
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      this.setState({ pdfData: data, loading: false });
+  
+      // Actualizar el estado con los datos recibidos
+      this.setState({ 
+        pdfData: data.map(item => ({
+          entidad: item.entidad,
+          noMuertos: item.total_muertos
+        })), 
+        loading: false 
+      }, () => {
+        this.createCharts();
+      });
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
       this.setState({ pdfData: [], loading: false });
     }
   }
+  
 
   //Constructor de la tabla de datos(cambiar por lectura de base de datos)
   constructor(props) {
@@ -58,7 +69,6 @@ export class Graphs extends Component {
   createCharts() {
     this.createChart(this.barChartRef, 'bar', 'barChart');
     this.createChart(this.lineChartRef, 'line', 'lineChart');
-    this.createChart(this.pieChartRef, 'pie', 'pieChart');
     this.createChart(this.radarChartRef, 'radar', 'radarChart');
     this.createChart(this.sideBarChartRef, 'bar', 'sideBarChart');
   }
@@ -81,10 +91,10 @@ export class Graphs extends Component {
     
     // Configurar datos para los gráficos
     const chartData = {
-      labels: pdfData.map(item => item.municipio), // Usar "entidad" como etiquetas
+      labels: pdfData.map(item => item.entidad), // Usar "entidad" como etiquetas
       datasets: [{
         label: '# de muertes',
-        data: pdfData.map(item => item.noMuertos), // Usar "noMuertos" como datos
+        data: pdfData.map(item => item.noMuertos), // Usar "total_muertos" como datos
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
@@ -134,13 +144,10 @@ export class Graphs extends Component {
           alignItems: 'center',
           gap: '10px'
         }}>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '75%', height: '500px' }}>
             <canvas ref={(ref) => this.radarChartRef = ref} />
           </div>
-          <div style={{ width: '100%', height: '300px' }}>
-            <canvas ref={(ref) => this.pieChartRef = ref} />
-          </div>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '50%', height: '300px' }}>
             <canvas ref={(ref) => this.sideBarChartRef = ref} />
           </div>
         </div>
