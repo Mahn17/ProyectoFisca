@@ -5,11 +5,15 @@ namespace ProyectoFisca.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
-        public DbSet<DatosHomicidios2>? Homicidios3 { get; set; }
-        public DbSet<Municipio>? Municipio { get; set; }
         public DbSet<Entidad>? Entidad { get; set; }
+        public DbSet<Municipio>? Municipio { get; set; }
+        public DbSet<Homicidios3>? Homicidios3 { get; set; }
     }
 }
+
 

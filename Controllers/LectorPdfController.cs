@@ -10,15 +10,15 @@ namespace ProyectoFisca.Controllers
     [Route("[controller]")]
     public class LectorPdfController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult ReadPdf()
-        {
-            string pdfPath = "homicidios_22092024.pdf";
-            var data = ExtractDataFromPdf(pdfPath);
-            return Ok(data);
-        }
+        //[HttpGet]
+        //public IActionResult ReadPdf()
+        //{
+          //  string pdfPath = "homicidios_22092024.pdf";
+            //var data = ExtractDataFromPdf(pdfPath);
+            //return Ok(data);
+        //}
 
-        static List<DatosHomicidios> ExtractDataFromPdf(string pdfPath)
+        /*static List<DatosHomicidios> ExtractDataFromPdf(string pdfPath)
         {
             var result = new List<DatosHomicidios>();
             string currentEntidad = null;
@@ -150,7 +150,7 @@ namespace ProyectoFisca.Controllers
         {
             // Define aquí qué considera como línea de municipio
             return !string.IsNullOrWhiteSpace(line) && line.Length < 30; // Ajusta el criterio según sea necesario
-        }
+        }*/
 
     }
 }

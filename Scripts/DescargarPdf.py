@@ -24,18 +24,22 @@ while current_date <= end_date:
     
     # Verifica el enlace antes de descargar
     print(f"Descargando: {pdf_url}")
-    
-    # Realiza la solicitud para obtener el PDF
-    pdf_response = requests.get(pdf_url)
 
-    # Verifica si la solicitud fue exitosa
-    if pdf_response.status_code == 200:
-        pdf_name = os.path.join(pdf_directory, f'homicidios_{formatted_date}.pdf')  # Nombre del archivo
-        with open(pdf_name, 'wb') as f:
-            f.write(pdf_response.content)
-        print(f"Descargado: {pdf_name}")
-    else:
-        print(f"Error al descargar {pdf_url}: {pdf_response.status_code}")
+
+    try:
+        # Realiza la solicitud para obtener el PDF
+        pdf_response = requests.get(pdf_url)
+
+        # Verifica si la solicitud fue exitosa
+        if pdf_response.status_code == 200:
+            pdf_name = os.path.join(pdf_directory, f'homicidios_{formatted_date}.pdf')  # Nombre del archivo
+            with open(pdf_name, 'wb') as f:
+                f.write(pdf_response.content)
+            print(f"Descargado: {pdf_name}")
+        else:
+            print(f"Error al descargar {pdf_url}: {pdf_response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error. La pagina no responde: {e}")
 
     # Avanza al siguiente día
     current_date += timedelta(days=1)

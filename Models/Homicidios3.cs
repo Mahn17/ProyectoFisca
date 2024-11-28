@@ -1,9 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace ProyectoFisca.Models
 {
-    public class DatosHomicidios2
+    public class Homicidios3
     {
         public int Id { get; set; }  // Clave primaria
-        public int MunicipioId { get; set; }
+        public int Municipio_Id { get; set; }
         public Municipio? Municipio { get; set; }
         public DateTime Fecha { get; set; }
         public int NoMuertos { get; set; }
@@ -12,4 +14,5 @@ namespace ProyectoFisca.Models
         public int NoIdentificado { get; set; }
         public string? Fuente { get; set; }
     }
+    
 }

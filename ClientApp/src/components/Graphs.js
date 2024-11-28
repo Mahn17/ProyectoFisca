@@ -1,77 +1,109 @@
 import React, { Component } from 'react';
 import { Chart } from 'chart.js/auto';
-import Plot from 'react-plotly.js';
-
+  
 export class Graphs extends Component {
   static displayName = Graphs.name;
+
+  async fetchPdfContent() {
+    try {
+      const response = await fetch('http://localhost:5000/api/data'); // URL del backend
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+  
+      // Actualizar el estado con los datos recibidos
+      this.setState({ 
+        pdfData: data.map(item => ({
+          entidad: item.entidad,
+          noMuertos: item.total_muertos
+        })), 
+        loading: false 
+      }, () => {
+        this.createCharts();
+      });
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+      this.setState({ pdfData: [], loading: false });
+    }
+  }
+  
 
   //Constructor de la tabla de datos(cambiar por lectura de base de datos)
   constructor(props) {
     super(props);
     this.state = {
-      data: {
-        labels: [
-          'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
-          'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
-          'Jalisco', 'Estado de México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
-          'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
-          'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
-        ],
-        datasets: [{
-          label: '# de muertes',
-          data: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1,
-        }],
-      },
-      mapData: {
-        labels: [
-          'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 
-          'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
-          'Jalisco', 'Estado de México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
-          'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
-          'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
-        ],
-        values: [12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3, 12, 10, 3, 5, 2, 3],
-        codes: [
-          'AGU', 'BCN', 'BCS', 'CAM', 'CHP', 'CHH', 'CMX', 'COA', 'COL', 'DUR', 'GUA', 'GRO', 'HID', 
-          'JAL', 'MEX', 'MIC', 'MOR', 'NAY', 'NLE', 'OAX', 'PUE', 'QUE', 'ROO', 'SLP', 'SIN', 'SON', 
-          'TAB', 'TAM', 'TLA', 'VER', 'YUC', 'ZAC'
-        ],
-      }
+      pdfData: [], // Datos desde la base de datos
+      loading: true,
     };
 
+    // Guardar cada instancia de gráfico
     this.charts = {};
   }
 
   //Creacion inicial de todos graficos
   componentDidMount() {
+    this.fetchPdfContent();
+  }
+
+  //Lectura de datos del PDF
+  async fetchPdfContent() {
+    try {
+      const response = await fetch('/LectorPdf');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+
+      // Actualizar estado y crear gráficos después de cargar los datos
+      this.setState({ pdfData: data, loading: false }, () => {
+        this.createCharts();
+      });
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+      this.setState({ pdfData: [], loading: false });
+    }
+  }
+
+  //Creacion individual de graficos
+  createCharts() {
     this.createChart(this.barChartRef, 'bar', 'barChart');
     this.createChart(this.lineChartRef, 'line', 'lineChart');
-    this.createChart(this.pieChartRef, 'pie', 'pieChart');
     this.createChart(this.radarChartRef, 'radar', 'radarChart');
     this.createChart(this.sideBarChartRef, 'bar', 'sideBarChart');
   }
 
-  //Destruccion de graficos
+  //Destruccion de Graficos
   componentWillUnmount() {
     Object.values(this.charts).forEach(chart => {
       if (chart) chart.destroy();
     });
   }
 
-  //Creacion individual de graficos
   createChart(ref, type, chartName) {
+    if (!ref) return;
     if (this.charts[chartName]) {
       this.charts[chartName].destroy();
     }
 
-    //Grafica Mapa
     const ctx = ref.getContext('2d');
+    const { pdfData } = this.state;
+    
+    // Configurar datos para los gráficos
+    const chartData = {
+      labels: pdfData.map(item => item.entidad), // Usar "entidad" como etiquetas
+      datasets: [{
+        label: '# de muertes',
+        data: pdfData.map(item => item.noMuertos), // Usar "total_muertos" como datos
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+      }],
+    };
+
     this.charts[chartName] = new Chart(ctx, {
       type: type,
-      data: this.state.data,
+      data: chartData,
       options: {
         indexAxis: chartName === 'sideBarChart' ? 'y' : 'x',
         maintainAspectRatio: false,
@@ -85,74 +117,10 @@ export class Graphs extends Component {
     });
   }
 
-  //Exportacion de datos a un archivo txt
-  exportData = () => {
-    const { labels, datasets } = this.state.data;
-    const rows = labels.map((label, index) => `${label}: ${datasets[0].data[index]}`);
-    const fileContent = rows.join('\n');
-
-    const blob = new Blob([fileContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'data.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  //Importacion de datos de un archivo txt
-  importData = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        const lines = content.split('\n');
-
-        const labels = [];
-        const data = [];
-
-        lines.forEach(line => {
-          const [label, value] = line.split(':').map(item => item.trim());
-          if (label && !isNaN(value)) {
-            labels.push(label);
-            data.push(parseFloat(value));
-          }
-        });
-
-        this.setState({
-          data: {
-            labels: labels,
-            datasets: [{
-              label: '# de muertes',
-              data: data,
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-            }],
-          }
-        }, () => {
-          // Volver a crear los gráficos para que tomen los nuevos datos
-          this.createChart(this.barChartRef, 'bar', 'barChart');
-          this.createChart(this.lineChartRef, 'line', 'lineChart');
-          this.createChart(this.pieChartRef, 'pie', 'pieChart');
-          this.createChart(this.radarChartRef, 'radar', 'radarChart');
-          this.createChart(this.sideBarChartRef, 'bar', 'sideBarChart');
-        });
-      };
-      reader.readAsText(file);
-    }
-  };
-
   //Renderizacion de Graficos
   render() {
-    const { labels, values, codes } = this.state.mapData;
-
     return (
       <div>
-        <button onClick={this.exportData}>Exportar datos</button>
-        <input type="file" accept=".txt" onChange={this.importData} />
-        
         {/*Primeras dos Graficas */}
         <div style={{
           display: 'flex', 
@@ -169,63 +137,19 @@ export class Graphs extends Component {
           </div>
         </div>
         
-        {/* Resto de las Graficas */}
+        {/* Resto de las Graficas.*/}
         <div style={{
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center',
           gap: '10px'
         }}>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '75%', height: '500px' }}>
             <canvas ref={(ref) => this.radarChartRef = ref} />
           </div>
-          <div style={{ width: '100%', height: '300px' }}>
-            <canvas ref={(ref) => this.pieChartRef = ref} />
-          </div>
-          <div style={{ width: '100%', height: '300px' }}>
+          <div style={{ width: '50%', height: '300px' }}>
             <canvas ref={(ref) => this.sideBarChartRef = ref} />
           </div>
-        </div>
-
-        {/* Mapa de México */}
-        <div style={{ width: '100%', height: '500px', marginTop: '20px' }}>
-          <Plot
-            data={[
-              {
-                type: 'choropleth',
-                locations: codes,
-                z: values,
-                locationmode: 'ISO-3',
-                text: labels,
-                colorscale: [
-                  [0, "rgb(5, 10, 172)"],
-                  [0.35, "rgb(40, 60, 190)"],
-                  [0.5, "rgb(70, 100, 245)"],
-                  [0.6, "rgb(90, 120, 245)"],
-                  [0.7, "rgb(106, 137, 247)"],
-                  [1, "rgb(220, 220, 220)"]
-                ],
-                colorbar: {
-                  title: '# de muertes',
-                },
-                marker: {
-                  line: {
-                    color: 'rgb(180,180,180)',
-                    width: 0.5
-                  }
-                },
-              }
-            ]}
-            layout={{
-              title: 'Mapa de México - Distribución de Muertes',
-              geo: {
-                scope: 'north america',
-                showlakes: true,
-                lakecolor: 'rgb(255, 255, 255)',
-                projection: { type: 'mercator' }
-              }
-            }}
-          />
         </div>
       </div>
     );

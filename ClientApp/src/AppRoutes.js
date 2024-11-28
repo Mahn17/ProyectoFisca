@@ -5,6 +5,7 @@ import { FiscaOcr } from "./components/FiscaOcr";
 import { Home } from "./components/Home";
 import { PruebaDash } from "./components/PruebaDash";
 import { Graphs } from "./components/Graphs";
+import { PruebaMapa } from "./components/pruebaMapa";
 
 const AppRoutes = [
   {
@@ -34,6 +35,10 @@ const AppRoutes = [
   {
     path: '/graphs',
     element: <Graphs />
+  },
+  {
+    path: '/map',
+    element: <PruebaMapa />
   }
 ];
 
