@@ -6,63 +6,77 @@ export class Fisca extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { pdfData: [], loading: true };
+    this.state = { datosHomicidios: [], loading: true };
   }
 
   componentDidMount() {
-    this.fetchPdfContent();
+    this.fetchData();
   }
 
-  async fetchPdfContent() {
+  async fetchData() {
     try {
-      const response = await fetch('/LectorPdf');
+      const response = await fetch('https://localhost:44497/LectorPdf', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Solo si usas cookies o autenticación
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      this.setState({ pdfData: data, loading: false });
+      //console.log(data);
+      console.log('Datos recibidos:', data);
+      this.setState({ datosHomicidios: data, loading: false });
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
-      this.setState({ pdfData: [], loading: false });
+      this.setState({ datosHomicidios: [], loading: false });
     }
   }
 
   render() {
-    const { loading, pdfData } = this.state;
-
-    let contents = loading ? (
-      <p className="loading-text"><em>Loading...</em></p>
-    ) : (
-      <table className="pdf-table">
-        <thead>
-          <tr>
-            <th>Entidad</th>
-            <th>Municipio</th>
-            <th>Número de Muertos</th>
-            <th>Hombre</th>
-            <th>Mujer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pdfData.map((row, index) => (
-            <tr key={index}>
-              <td>{row.entidad}</td>
-              <td>{row.municipio}</td>
-              <td>{row.noMuertos}</td>
-              <td>{row.hombre}</td>
-              <td>{row.mujer}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-
+    
+    let contents = this.state.loading
+      ? <p><em>Loading...</em></p>
+      : (
+          <div>
+            <h2>Datos de Municipios, Entidades y Homicidios</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Municipio</th>
+                  <th>Entidad</th>
+                  <th>Número de Muertos</th>
+                  <th>Hombres</th>
+                  <th>Mujeres</th>
+                  <th>No Identificado</th>
+                  <th>Fuente</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.datosHomicidios.slice(0, 30).map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.municipio}</td>
+                    <td>{item.entidad}</td>
+                    <td>{item.num_Muertos}</td>
+                    <td>{item.hombres}</td>
+                    <td>{item.mujeres}</td>
+                    <td>{item.no_Identificado}</td>
+                    <td>{item.fuente}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+  
     return (
-      <div className="fisca-container">
-        <h1 id="tableLabel" className="pdf-title">Contenido del PDF</h1>
-        <p className="pdf-description">Índice de homicidios por estado.</p>
+      <div>
+        <h1 id="tableLabel">Contenido de los Homicidios</h1>
         {contents}
       </div>
     );
   }
 }
+  

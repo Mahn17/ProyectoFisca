@@ -10,7 +10,7 @@ const context = [
   "/LectorPdfOcr",
   "/Graphs",
   "/Homicidios",
-  "/Municipio"
+  "/Municipio",
 ];
 
 const onError = (err, req, resp, target) => {

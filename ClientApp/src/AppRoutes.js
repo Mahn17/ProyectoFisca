@@ -6,6 +6,7 @@ import { Home } from "./components/Home";
 import { PruebaDash } from "./components/PruebaDash";
 import { Graphs } from "./components/Graphs";
 import { PruebaMapa } from "./components/pruebaMapa";
+import  Homicidios  from './components/Homicidios';
 
 const AppRoutes = [
   {
@@ -39,6 +40,10 @@ const AppRoutes = [
   {
     path: '/map',
     element: <PruebaMapa />
+  },
+  {
+    path: "/homicidios",
+    element: <Homicidios />
   }
 ];
 

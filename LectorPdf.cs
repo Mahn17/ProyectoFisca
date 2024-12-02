@@ -9,34 +9,9 @@ namespace ProyectoFisca
 {
     public class LectorPdf
     {
-        private readonly ApplicationDbContext _context;
+        //public string? Text { get; set; }
+        public List<int>? Homicidios { get; set; }
 
-        public LectorPdf(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<List<Homicidios3>> ObtenerHomicidiosAsync()
-        {
-            var homicidios = await _context.Homicidios3
-                .Include(h => h.Municipio)  // Incluir Municipio
-                .ThenInclude(m => m.Entidad)  // Incluir Entidad relacionada con Municipio
-                .Select(h => new Homicidios3
-                {
-                    Id = h.Id,
-                    Municipio_Id = h.Municipio_Id,
-                    Municipio = h.Municipio,
-                    Fecha = h.Fecha,
-                    NoMuertos = h.NoMuertos,
-                    Hombre = h.Hombre,
-                    Mujer = h.Mujer,
-                    NoIdentificado = h.NoIdentificado,
-                    Fuente = h.Fuente
-                })
-                .ToListAsync();
-
-            return homicidios;
-        }
     }
 }
 

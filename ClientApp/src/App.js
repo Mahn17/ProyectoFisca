@@ -26,6 +26,24 @@ import AppRoutes from './AppRoutes';
 import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined, DotChartOutlined } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme, ConfigProvider } from 'antd';
 import './custom.css';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+// Registrar los componentes de Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -47,6 +65,8 @@ const items = [
   getItem('PruebaDash', '6', <PieChartOutlined />, null, '/pruebadash' ),
   getItem('Graphs', '7', <PieChartOutlined/>, null, '/graphs'),
   getItem('Mapa', '8', <DotChartOutlined />, null, '/map'),
+  getItem('Homicidios', '9', <DotChartOutlined />, null, '/homicidios'),
+  
 ];
 
 const App = () => {

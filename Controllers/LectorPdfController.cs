@@ -1,156 +1,79 @@
 using System.Collections.Generic;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas.Parser;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
+using Microsoft.AspNetCore.Authorization;
 using ProyectoFisca.Models;
 
 namespace ProyectoFisca.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [AllowAnonymous]
     public class LectorPdfController : ControllerBase
     {
-        //[HttpGet]
-        //public IActionResult ReadPdf()
-        //{
-          //  string pdfPath = "homicidios_22092024.pdf";
-            //var data = ExtractDataFromPdf(pdfPath);
-            //return Ok(data);
-        //}
+        private readonly string connectionString = "server=localhost;user=root;password=HolaMundo22;database=fiscalia";
 
-        /*static List<DatosHomicidios> ExtractDataFromPdf(string pdfPath)
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
-            var result = new List<DatosHomicidios>();
-            string currentEntidad = null;
-            string accumulatedLine = ""; 
+            var datosHomicidios = new List<object>();
 
-            string currentMunicipio = null; // Para manejar líneas de municipios en varias líneas
-            bool isMunicipioLine = false; // Indica si estamos procesando una línea de municipio
-
-            using (PdfReader reader = new PdfReader(pdfPath))
-            using (PdfDocument pdfDoc = new PdfDocument(reader))
+            try
             {
-                for (int page = 1; page <= pdfDoc.GetNumberOfPages(); page++)
+                using (var connection = new MySqlConnection(connectionString))
                 {
-                    var text = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page));
-                    var lines = text.Split('\n');
+                    await connection.OpenAsync();
 
-                    foreach (var line in lines)
+                    // Consulta para obtener los datos de homicidios, incluyendo columnas adicionales
+                    var query = @"SELECT 
+                        e.Nombre AS Entidad, 
+                        m.Nombre AS Municipio, 
+                        (h.Hombres + h.Mujeres + h.No_Identificado) AS Num_Muertos,
+                        h.Hombres,
+                        h.Mujeres,
+                        h.No_Identificado,
+                        h.Fuente
+                    FROM Homicidios3 h
+                    JOIN Municipio m ON h.Municipio_Id = m.Id
+                    JOIN Entidad e ON m.Entidad_Id = e.Id
+                    LIMIT 30;";
+
+                    using (var command = new MySqlCommand(query, connection))
                     {
-                        // Limpiar el texto y evitar líneas vacías
-                        var trimmedLine = line.Trim();
-                        if (string.IsNullOrEmpty(trimmedLine)) continue;
-
-                        // Ignorar líneas de encabezado o separadores
-                        if (trimmedLine.StartsWith("MUNICIPIOS MÁS VIOLENTOS") || 
-                            trimmedLine.StartsWith("Homicidios Dolosos") || 
-                            trimmedLine.StartsWith("Entidad")) 
-                            //trimmedLine.StartsWith("--------------------------------------------------"))
+                        using (var reader = await command.ExecuteReaderAsync())
                         {
-                            continue;
-                        }
-
-                        // Detección de entidad (asumiendo que comienza con un nombre específico)
-                        if (IsEntityLine(trimmedLine))
-                        {
-                             // Si hay un municipio anterior, añade la entrada a los resultados
-                            if (currentMunicipio != null)
+                            while (await reader.ReadAsync())
                             {
-                                AddHomicidioData(result, currentEntidad, currentMunicipio);
-                                currentMunicipio = null; // Reiniciar para la siguiente entrada
-                            }
+                                string? municipio = reader["Municipio"].ToString();
+                                string? entidad = reader["Entidad"].ToString();
+                                int numMuertos = reader["Num_Muertos"] != DBNull.Value ? Convert.ToInt32(reader["Num_Muertos"]) : 0;
+                                int hombres = reader["Hombres"] != DBNull.Value ? Convert.ToInt32(reader["Hombres"]) : 0;
+                                int mujeres = reader["Mujeres"] != DBNull.Value ? Convert.ToInt32(reader["Mujeres"]) : 0;
+                                int noIdentificado = reader["No_Identificado"] != DBNull.Value ? Convert.ToInt32(reader["No_Identificado"]) : 0;
+                                string? fuente = reader["Fuente"].ToString();
 
-                            currentEntidad = GetEntityName(trimmedLine);
+                                datosHomicidios.Add(new
+                                {
+                                    Municipio = municipio,
+                                    Entidad = entidad,
+                                    Num_Muertos = numMuertos,
+                                    Hombres = hombres,
+                                    Mujeres = mujeres,
+                                    No_Identificado = noIdentificado,
+                                    Fuente = fuente
+                                });
+                            }
                         }
-                        else
-                        {
-
-                            // Verifica si la línea es parte de un municipio
-                            if (IsMunicipioLine(trimmedLine))
-                            {
-                                if (currentMunicipio != null)
-                                {
-                                    currentMunicipio += " " + trimmedLine; // Concatenar si es una continuación
-                                }
-                                else
-                                {
-                                    currentMunicipio = trimmedLine; // Asignar municipio
-                                }
-                                isMunicipioLine = true; // Indica que se está en una línea de municipio
-                            }
-                            else if (isMunicipioLine)
-                            {
-
-                                // Dividir la línea en partes basándose en el espacio en blanco
-                                var columns = trimmedLine.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                                
-                                // Asegurarse de que hay suficientes columnas
-                                if (columns.Length >= 4)
-                                {
-                                    var municipio = columns[0]; // Asume que el primer campo es el municipio
-                                    var noMuertos = columns[1]; // Asume que el segundo campo es el número de muertos
-                                    var hombres = columns[2];
-                                    var mujeres = columns[3];
-
-
-                                    // Crear un nuevo objeto DatosHomicidios
-                                    var data = new DatosHomicidios
-                                    {
-                                        Entidad = currentEntidad,
-                                        Municipio = municipio,
-                                        NoMuertos = noMuertos == "-" ? "0" : noMuertos, // Cambia '-' por '0' si lo deseas
-                                        Hombre = hombres == "-" ? "0" : hombres, // Cambia '-' por '0' si lo deseas
-                                        Mujer = mujeres == "-" ? "0" : mujeres
-
-                                    };
-                                    result.Add(data);
-                                }
-
-                            }
-                           
-                        }
-                    }
-                    // Si al final de la página hay datos sin agregar, los añadimos
-                    if (currentMunicipio != null && currentEntidad != null)
-                    {
-                        AddHomicidioData(result, currentEntidad, currentMunicipio);
                     }
                 }
+
+                return Ok(datosHomicidios);
             }
-
-            return result;
-        }
-
-        private static bool IsEntityLine(string line)
-        {
-            // Define aquí qué considera como línea de entidad, puede incluir más condiciones
-            return line.Contains("Baja California") || line.Contains("Chiapas");
-        }
-        private static void AddHomicidioData(List<DatosHomicidios> result, string entidad, string municipio)
-        {
-            // Se puede agregar una lógica para obtener los números de muertos y demás campos
-            result.Add(new DatosHomicidios
+            catch (Exception ex)
             {
-                Entidad = entidad,
-                Municipio = municipio,
-                NoMuertos = "0", // Aquí debes agregar la lógica para obtener el valor real
-                Hombre = "0", // Aquí debes agregar la lógica para obtener el valor real
-                Mujer = "0" // Aquí debes agregar la lógica para obtener el valor real
-            });
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
         }
-
-
-        private static string GetEntityName(string line)
-        {
-            // Extrae el nombre de la entidad de la línea
-            var parts = line.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-            return parts[0]; // Retorna la primera parte como el nombre de la entidad
-        }
-         private static bool IsMunicipioLine(string line)
-        {
-            // Define aquí qué considera como línea de municipio
-            return !string.IsNullOrWhiteSpace(line) && line.Length < 30; // Ajusta el criterio según sea necesario
-        }*/
-
     }
 }
