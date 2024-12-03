@@ -6,7 +6,7 @@ export class Graphs extends Component {
 
   async fetchPdfContent() {
     try {
-      const response = await fetch('http://localhost:5000/api/data'); // URL del backend
+      const response = await fetch('https://localhost:44497/LectorPdf'); // URL del backend
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -94,7 +94,7 @@ export class Graphs extends Component {
       labels: pdfData.map(item => item.entidad), // Usar "entidad" como etiquetas
       datasets: [{
         label: '# de muertes',
-        data: pdfData.map(item => item.noMuertos), // Usar "total_muertos" como datos
+        data: pdfData.map(item => (item.num_Muertos)), // Usar "total_muertos" como datos
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
